@@ -1,0 +1,53 @@
+name: Android Compatibility
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cordova_android: 14.0.1
+            node: 20
+          - cordova_android: 15.0.0
+            node: 22
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Cordova CLI
+        run: npm install --global cordova@12
+
+      - name: Lint plugin JS
+        run: npm test
+
+      - name: Build test app with cordova-android@${{ matrix.cordova_android }}
+        run: |
+          TEST_DIR="${RUNNER_TEMP}/filechooser-test-${{ matrix.cordova_android }}"
+          cordova create "$TEST_DIR" com.example.filechooser FileChooserTest
+          cd "$TEST_DIR"
+          cordova platform add "android@${{ matrix.cordova_android }}"
+          cordova plugin add "$GITHUB_WORKSPACE"
+          cordova build android --debug --no-telemetry
