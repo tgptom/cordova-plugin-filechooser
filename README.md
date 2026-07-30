@@ -4,7 +4,7 @@ Android-only file chooser plugin for Cordova.
 
 ## Requirements
 
-- Cordova Android `14.x` or `15.x`
+- Cordova Android `14.x` or newer (verified with `14.x` and `15.x`)
 - Node.js `>=20.5.0`
 - JDK `17`
 
